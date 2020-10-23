@@ -41,6 +41,8 @@ namespace PoeDB
             this.homePanel = new System.Windows.Forms.Panel();
             this.tabDoc = new System.Windows.Forms.WebBrowser();
             this.headPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.monSearchBox = new System.Windows.Forms.TextBox();
+            this.monSearchBtn = new System.Windows.Forms.Button();
             this.tabLink = new System.Windows.Forms.Label();
             this.tabText = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -65,6 +67,7 @@ namespace PoeDB
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.panel1.SuspendLayout();
             this.homePanel.SuspendLayout();
+            this.headPanel.SuspendLayout();
             this.panel3.SuspendLayout();
             this.mainHeadPanel.SuspendLayout();
             this.settingPanel.SuspendLayout();
@@ -144,7 +147,7 @@ namespace PoeDB
             // 
             // homePanel
             // 
-            this.homePanel.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
+            this.homePanel.BackColor = System.Drawing.Color.Transparent;
             this.homePanel.Controls.Add(this.tabDoc);
             this.homePanel.Controls.Add(this.headPanel);
             this.homePanel.Location = new System.Drawing.Point(102, 54);
@@ -164,10 +167,36 @@ namespace PoeDB
             // headPanel
             // 
             this.headPanel.AutoSize = true;
+            this.headPanel.Controls.Add(this.monSearchBox);
+            this.headPanel.Controls.Add(this.monSearchBtn);
             this.headPanel.Location = new System.Drawing.Point(0, 0);
             this.headPanel.Name = "headPanel";
-            this.headPanel.Size = new System.Drawing.Size(952, 33);
+            this.headPanel.Size = new System.Drawing.Size(952, 34);
             this.headPanel.TabIndex = 0;
+            // 
+            // monSearchBox
+            // 
+            this.monSearchBox.Font = new System.Drawing.Font("宋体", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.monSearchBox.Location = new System.Drawing.Point(3, 3);
+            this.monSearchBox.Name = "monSearchBox";
+            this.monSearchBox.Size = new System.Drawing.Size(336, 26);
+            this.monSearchBox.TabIndex = 0;
+            this.monSearchBox.Visible = false;
+            this.monSearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.monSearch_Click);
+            // 
+            // monSearchBtn
+            // 
+            this.monSearchBtn.BackgroundImage = global::PoeDB.Properties.Resources.search;
+            this.monSearchBtn.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.monSearchBtn.FlatAppearance.BorderSize = 0;
+            this.monSearchBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.monSearchBtn.Location = new System.Drawing.Point(345, 3);
+            this.monSearchBtn.Name = "monSearchBtn";
+            this.monSearchBtn.Size = new System.Drawing.Size(28, 28);
+            this.monSearchBtn.TabIndex = 1;
+            this.monSearchBtn.UseVisualStyleBackColor = true;
+            this.monSearchBtn.Visible = false;
+            this.monSearchBtn.Click += new System.EventHandler(this.monSearch_Click);
             // 
             // tabLink
             // 
@@ -430,6 +459,7 @@ namespace PoeDB
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.White;
+            this.BackgroundImage = global::PoeDB.Properties.Resources.Bg;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(1069, 567);
             this.Controls.Add(this.label5);
@@ -454,6 +484,8 @@ namespace PoeDB
             this.panel1.ResumeLayout(false);
             this.homePanel.ResumeLayout(false);
             this.homePanel.PerformLayout();
+            this.headPanel.ResumeLayout(false);
+            this.headPanel.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.mainHeadPanel.ResumeLayout(false);
@@ -496,6 +528,8 @@ namespace PoeDB
         private Label dbUrlLabel;
         private Button monBtn;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private TextBox monSearchBox;
+        private Button monSearchBtn;
     }
 }
 

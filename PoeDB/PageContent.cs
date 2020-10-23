@@ -14,6 +14,9 @@ namespace PoeDB
     {
         public HtmlAgilityPack.HtmlNode[] areaTab_B = new HtmlAgilityPack.HtmlNode[] { };
         public HtmlAgilityPack.HtmlNode[] areaTab_G = new HtmlAgilityPack.HtmlNode[] { };
+        public HtmlAgilityPack.HtmlNode monTable = null;
+        public string _thead = "";
+
         public HtmlAgilityPack.HtmlNode areaTab_Main;
         public HashSet<string> monUrlSet = new HashSet<string>();
 
@@ -93,11 +96,11 @@ namespace PoeDB
             //areaTab_G = headlineN.SelectNodes(".//a")?.ToArray();
 
             //monster_list
-            if (tab_content == null)
-                return "<h1>Content not found</h1>"; 
             if (subUrl == "mon.php")
                 //get monster detail list
                 resp = monPage();
+            else if(tab_content == null)
+                return "<h1>Content not found</h1>"; 
             else
                 //return main page tab-content html
                 resp = tab_content.InnerHtml;
@@ -107,22 +110,19 @@ namespace PoeDB
         public string monPage() {
             Uri uri = new Uri(DBsettings.DBURL + "mon.php");
             string resp = null;
-            bool first = true;
             //monster list doc
             HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
             //monster detail doc
-            HtmlAgilityPack.HtmlDocument subdoc = new HtmlAgilityPack.HtmlDocument();
+            //HtmlAgilityPack.HtmlDocument subdoc = new HtmlAgilityPack.HtmlDocument();
             //tempary doc
             HtmlAgilityPack.HtmlDocument _doc = new HtmlAgilityPack.HtmlDocument();
-
-
-            HtmlAgilityPack.HtmlNode monTable = null;
             //create empty table
+            monTable = null;
             monTable = _doc.CreateElement("table");
             monTable.AddClass("table table-striped table-bordered");
             monTable.AppendChild(_doc.CreateElement("thead"));
             monTable.AppendChild(_doc.CreateElement("tbody"));
-            var _thead = monTable.SelectSingleNode(".//thead");
+            var theadNode = monTable.SelectSingleNode(".//thead");
 
 
             var monList = new HtmlAgilityPack.HtmlNode[] { };
@@ -133,43 +133,62 @@ namespace PoeDB
             resp = monSpan;
             areaTab_Main = doc.DocumentNode.SelectSingleNode("//div[@id = 'Monstermon_list15']");
             HtmlAgilityPack.HtmlNode[] mons = areaTab_Main.SelectNodes(".//tbody/tr[position() < 50 ]").ToArray();
-            foreach (var mon in mons)
-            {
-                //fetch monster detail
-                var suburl = mon.SelectSingleNode("td[1]/a").GetAttributeValue("href", "");
-                if (!monUrlSet.Contains(suburl)&&suburl.StartsWith("/cn/"))
-                {
-                    monUrlSet.Add(suburl);
-                    Uri monLink = new Uri(DBsettings.monURL + suburl);
-                    var monCrawl = WebRequest.RequestAction(new RequestOptions() { Uri = monLink, Method = "Get" });
-                    subdoc.LoadHtml(monCrawl);
-                    var monName = subdoc.DocumentNode.SelectSingleNode("//h4");
-                    var detailTab = subdoc.DocumentNode.SelectSingleNode("//div[@class = 'tab-content'][1]/div[1]/table");
-                    if (detailTab.SelectNodes("tr").Count > 16)
-                    {
-                        //todo: add td according to th 
-                        var monTd = detailTab.SelectNodes("tr[position() = 1 or position() > 2 and position() < 15]/td");
 
-                        if (first)
-                        {
-                            //add name
-                            var monTh = detailTab.SelectNodes("tr[position() = 1 or position() > 2 and position() < 15]/th");
-                            _thead.InnerHtml = "<th>名字</th>";
-                            foreach (var th in monTh)
-                                _thead.InnerHtml += th.OuterHtml;
-                            first = false;
-                        }
-                        //new element
-                        var _tr = _doc.CreateElement("tr");
-                        _tr.InnerHtml += "<td>" + monName.InnerHtml + "</td>";
-                        foreach (var td in monTd)
-                        {
-                            _tr.AppendChild(td);
-                        }
-                        monTable.SelectSingleNode(".//tbody").InnerHtml += _tr.OuterHtml;
-                    }
-                }
+            //var _thead = monTable.SelectSingleNode(".//thead");
+            //add thead
+            if (_thead == "")
+            {
+                string[] monTh = DBsettings.monTableHead;
+                foreach (var th in monTh)
+                    _thead += "<th>" + th + "</th>";
+                theadNode.InnerHtml = _thead;
             }
+
+            ParallelOptions option = new ParallelOptions();
+            option.MaxDegreeOfParallelism = 4;
+            int index = 0;
+            Parallel.ForEach(mons, option, (mon) =>
+            {
+                monTable.SelectSingleNode(".//tbody").InnerHtml += monDetailPg(mon, index++);
+            });
+            //loop get mon detail resp
+            //foreach (var mon in mons)
+            //{
+            //    //fetch monster detail
+            //    //var suburl = mon.SelectSingleNode("td[1]/a").GetAttributeValue("href", "");
+            //    //if (!monUrlSet.Contains(suburl)&&suburl.StartsWith("/cn/"))
+            //    //{
+            //    //    monUrlSet.Add(suburl);
+            //    //    Uri monLink = new Uri(DBsettings.monURL + suburl);
+            //    //    var monCrawl = WebRequest.RequestAction(new RequestOptions() { Uri = monLink, Method = "Get" });
+            //    //    subdoc.LoadHtml(monCrawl);
+            //    //    var monName = subdoc.DocumentNode.SelectSingleNode("//h4");
+            //    //    var detailTab = subdoc.DocumentNode.SelectSingleNode("//div[@class = 'tab-content'][1]/div[1]/table");
+            //    //    if (detailTab.SelectNodes("tr").Count > 16)
+            //    //    {
+            //    //        //todo: add td according to th 
+            //    //        var monTd = detailTab.SelectNodes("tr[position() = 1 or position() > 2 and position() < 15]/td");
+
+            //    //        if (first)
+            //    //        {
+            //    //            //add name
+            //    //            var monTh = detailTab.SelectNodes("tr[position() = 1 or position() > 2 and position() < 15]/th");
+            //    //            _thead.InnerHtml = "<th>名字</th>";
+            //    //            foreach (var th in monTh)
+            //    //                _thead.InnerHtml += th.OuterHtml;
+            //    //            first = false;
+            //    //        }
+            //    //        //new element
+            //    //        var _tr = _doc.CreateElement("tr");
+            //    //        _tr.InnerHtml += "<td>" + monName.InnerHtml + "</td>";
+            //    //        foreach (var td in monTd)
+            //    //        {
+            //    //            _tr.AppendChild(td);
+            //    //        }
+            //    //        monTable.SelectSingleNode(".//tbody").InnerHtml += _tr.OuterHtml;
+            //    //    }
+            //    //}
+            //}
             resp += monTable.OuterHtml;
             return resp;
         }
@@ -183,5 +202,38 @@ namespace PoeDB
         //    thread.IsBackground = true;
         //    thread.Start();
         //}
+
+        private string monDetailPg(HtmlAgilityPack.HtmlNode monNode,int index) {
+            HtmlAgilityPack.HtmlDocument _doc = new HtmlAgilityPack.HtmlDocument();
+            HtmlAgilityPack.HtmlDocument subdoc = new HtmlAgilityPack.HtmlDocument();
+
+            var suburl = monNode.SelectSingleNode("td[1]/a").GetAttributeValue("href", "");
+            if (!monUrlSet.Contains(suburl) && suburl.StartsWith("/cn/"))
+            {
+                monUrlSet.Add(suburl);
+                Uri monLink = new Uri(DBsettings.monURL + suburl);
+                var monCrawl = WebRequest.RequestAction(new RequestOptions() { Uri = monLink, Method = "Get" });
+                subdoc.LoadHtml(monCrawl);
+                var monName = subdoc.DocumentNode.SelectSingleNode("//h4");
+                var detailTab = subdoc.DocumentNode.SelectSingleNode("//div[@class = 'tab-content'][1]/div[1]/table");
+                if (detailTab.SelectNodes("tr").Count > 16)
+                {
+                    //todo: add td according to th 
+                    var monTd = detailTab.SelectNodes("tr[position() = 1 or position() > 2 and position() < 15]/td");
+
+                    //new element
+                    var _tr = _doc.CreateElement("tr");
+                    _tr.InnerHtml += "<td>" + monName.InnerHtml + "</td>";
+                    foreach (var td in monTd)
+                    {
+                        _tr.AppendChild(td);
+                    }
+                    //final add tr outerhtml to montable
+                    return _tr.OuterHtml;
+                }
+            }
+            return "";
+            Console.Out.WriteLine("Thread "+index);
+        }
     }
 }

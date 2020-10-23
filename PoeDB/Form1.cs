@@ -20,7 +20,7 @@ namespace PoeDB
             InitializeComponent();
             //initial panel switch
             pre_panel = this.homePanel;
-            watch = new Stopwatch();
+            watch = Stopwatch.StartNew();
         }
 
         private string pre_box = "";
@@ -48,11 +48,27 @@ namespace PoeDB
         //    statusBox.Items.Add("update");
         //    return "update";
         //}
+        private string res = "";
+        private void paralle() {
+            string[] strs = new string[]{"1","2","3"};
+            ParallelOptions options = new ParallelOptions();
+            options.MaxDegreeOfParallelism = 4;
+            Parallel.ForEach(strs,options,(str) =>
+            {
+
+                task(str);
+            });
+            updateStatusBox(res);
+        }
+
+        private void task(string str) {
+            res += str;
+        }
 
         private void initial_header()
         {
             this.pgdata = new PageContent();
-            Stopwatch watch = new Stopwatch();
+            Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
             updateStatusBox("Initializing PoeDB header...");
             //initial all combobox 
@@ -174,6 +190,7 @@ namespace PoeDB
             pre_panel.Visible = false;
             this.settingPanel.Visible = true;
             pre_panel = this.settingPanel;
+            paralle();
         }
 
         private void loadSettingPage()
@@ -229,15 +246,25 @@ namespace PoeDB
                         pre_listItem = Selected_tx;
                         tabText.Text = Selected_tx;
                         tabLink.Text = Selected_lk;
-                        //load html doc from selected index
+                        if (Selected_tx == "怪物")
+                        {
+                            this.monSearchBtn.Visible = this.monSearchBox.Visible = true;
+                        }
+                        else {
+                            this.monSearchBtn.Visible = this.monSearchBox.Visible = false;
+                        }
+                        this.watch = Stopwatch.StartNew();
                         this.watch.Start();
+
                         updateStatusBox("Loading " + Selected_tx + " page...");
                         
+                        //load html doc from selected index
                         var sub_pageDt = pgdata.getCertainPage(Selected_lk);
                         //initial webbrowser
                         tabDoc.Navigate("about:blank");
                         HtmlDocument doc = tabDoc.Document;
                         doc.Write(String.Empty);
+                        //TODO: seprate doc thread with form thread
                         tabDoc.DocumentText = DBsettings.styleSheet + sub_pageDt + DBsettings.htmlEnd;
                     }
                 }
@@ -313,6 +340,23 @@ namespace PoeDB
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
 
+        }
+
+        private void monSearch_Click(object sender, EventArgs e)
+        {
+            //input eg: aspect of might => Aspect_of_Might
+            //
+            var _name = this.monSearchBox.Text.Split(' ');
+            var monUrl = "";
+            if (_name.Count() > 1) {
+                for (var i = 0; i < _name.Count(); ++i)
+                {
+                    monUrl += char.ToUpper(_name[i][0]) + _name[i].Substring(1);
+                    if (i != _name.Count()-1)
+                        monUrl += "_";
+                }
+            }
+            var sub_pageDt = pgdata.getCertainPage(monUrl);
         }
     }
 }
