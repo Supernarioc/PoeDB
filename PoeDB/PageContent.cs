@@ -16,11 +16,14 @@ namespace PoeDB
         public HtmlAgilityPack.HtmlNode[] areaTab_G = new HtmlAgilityPack.HtmlNode[] { };
         public HtmlAgilityPack.HtmlNode monTable = null;
         public string _thead = "";
+        object _lock = new object();
 
         public HtmlAgilityPack.HtmlNode areaTab_Main;
         public HashSet<string> monUrlSet = new HashSet<string>();
 
         public HtmlAgilityPack.HtmlNode[] M_headline = new HtmlAgilityPack.HtmlNode[] { };
+        private string outHtml;
+
         /// <summary>
         /// 初始化爬取
         /// </summary>
@@ -122,6 +125,8 @@ namespace PoeDB
             HtmlAgilityPack.HtmlDocument _doc = new HtmlAgilityPack.HtmlDocument();
             //create empty table
             monTable = null;
+            outHtml = "";
+            monUrlSet = new HashSet<string>();
             monTable = _doc.CreateElement("table");
             //monTable.AddClass("table table-striped table-bordered");
             monTable.AppendChild(_doc.CreateElement("thead"));
@@ -138,7 +143,7 @@ namespace PoeDB
             areaTab_Main = doc.DocumentNode.SelectSingleNode("//div[@id = 'Monstermon_list15']");
             string tableClass = areaTab_Main.SelectSingleNode(".//table").GetAttributeValue("class", "");
             monTable.AddClass(tableClass);
-            HtmlAgilityPack.HtmlNode[] mons = areaTab_Main.SelectNodes(".//tbody/tr[position() < 50 ]").ToArray();
+            HtmlAgilityPack.HtmlNode[] mons = areaTab_Main.SelectNodes(".//tbody/tr[position() < 10 ]").ToArray();
 
             //var _thead = monTable.SelectSingleNode(".//thead");
             //add thead
@@ -149,14 +154,31 @@ namespace PoeDB
                     _thead += "<th>" + th + "</th>";
                 theadNode.InnerHtml = _thead;
             }
+            if (theadNode.InnerHtml == "")
+                theadNode.InnerHtml = _thead;
 
-            ParallelOptions option = new ParallelOptions();
-            option.MaxDegreeOfParallelism = 4;
+            //ParallelOptions option = new ParallelOptions();
+            //option.MaxDegreeOfParallelism = 4;
             int index = 0;
-            Parallel.ForEach(mons, option, (mon) =>
-            {
-                monTable.SelectSingleNode(".//tbody").InnerHtml += monDetailPg(mon, index++);
-            });
+            //string outHtml = "";
+            //Parallel.ForEach(mons, option, (mon) =>
+            //{
+            //    Thread.Sleep(100);
+            //    outHtml += monDetailPg(mon, index++);
+            //});
+            //threadpool
+            //ThreadPool.SetMaxThreads(5, 5);
+            //foreach (var mon in mons) {
+            //    ThreadPool.QueueUserWorkItem(state => monThread(mon));
+            //    Console.Out.WriteLine("T"+ ++index);
+            //}
+            //Thread[] threads = new Thread[9];
+
+            foreach (var mon in mons) {
+                Thread thread = new Thread(() => monThread(mon));
+                thread.Start();
+            }
+
             //loop get mon detail resp
             //foreach (var mon in mons)
             //{
@@ -195,6 +217,7 @@ namespace PoeDB
             //    //    }
             //    //}
             //}
+            monTable.SelectSingleNode(".//tbody").InnerHtml += outHtml;
             resp += monTable.OuterHtml;
             return resp;
         }
@@ -202,14 +225,15 @@ namespace PoeDB
             await Task.Delay(20);
             return "update";
         }
-        //public void th() {
-        //    ThreadStart ts = new ThreadStart(update);
-        //    Thread thread = new Thread(ts);
-        //    thread.IsBackground = true;
-        //    thread.Start();
-        //}
 
-        private string monDetailPg(HtmlAgilityPack.HtmlNode monNode,int index) {
+        private void monThread(object objs) {
+            //lock (_lock)
+            //{
+                outHtml += monDetailPg((HtmlAgilityPack.HtmlNode)objs);
+            //}
+        }
+
+        private string monDetailPg(HtmlAgilityPack.HtmlNode monNode) {
             HtmlAgilityPack.HtmlDocument _doc = new HtmlAgilityPack.HtmlDocument();
             HtmlAgilityPack.HtmlDocument subdoc = new HtmlAgilityPack.HtmlDocument();
 
@@ -238,7 +262,7 @@ namespace PoeDB
                     return _tr.OuterHtml;
                 }
             }
-            Console.Out.WriteLine("Thread "+index);
+            //Console.Out.WriteLine("Thread "+index);
             return "";
         }
     }

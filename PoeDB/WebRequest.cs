@@ -14,7 +14,7 @@ namespace PoeDB
         public static string RequestAction(RequestOptions options)
         {
             string result = string.Empty;
-            IWebProxy proxy = GetProxy();
+            //IWebProxy proxy = GetProxy();
             var request = (HttpWebRequest)System.Net.WebRequest.Create(options.Uri);
             request.Accept = options.Accept;
             //在使用curl做POST的时候, 当要POST的数据大于1024字节的时候, curl并不会直接就发起POST请求, 而是会分为俩步,
@@ -32,7 +32,7 @@ namespace PoeDB
             request.KeepAlive = options.KeepAlive;//启用长连接
             if (!string.IsNullOrEmpty(options.Referer)) request.Referer = options.Referer;//返回上一级历史链接
             request.Method = options.Method;//定义请求方式为GET
-            if (proxy != null) request.Proxy = proxy;//设置代理服务器IP，伪装请求地址
+            //if (proxy != null) request.Proxy = proxy;//设置代理服务器IP，伪装请求地址
             if (!string.IsNullOrEmpty(options.RequestCookies)) request.Headers[HttpRequestHeader.Cookie] = options.RequestCookies;
             request.ServicePoint.ConnectionLimit = options.ConnectionLimit;//定义最大连接数
             if (options.WebHeader != null && options.WebHeader.Count > 0) request.Headers.Add(options.WebHeader);//添加头部信息
@@ -91,18 +91,18 @@ namespace PoeDB
             {
                 // 代理链接地址加端口
                 string proxyHost = "192.168.1.1";
-                string proxyPort = "8080";
+                string proxyPort = "80";
 
                 // 代理身份验证的帐号跟密码
                 //string proxyUser = "xxx";
                 //string proxyPass = "xxx";
 
                 // 设置代理服务器
-                webProxy = new System.Net.WebProxy();
+                webProxy = new WebProxy();
                 // 设置代理地址加端口
                 webProxy.Address = new Uri(string.Format("{0}:{1}", proxyHost, proxyPort));
                 // 如果只是设置代理IP加端口，例如192.168.1.1:80，这里直接注释该段代码，则不需要设置提交给代理服务器进行身份验证的帐号跟密码。
-                //webProxy.Credentials = new System.Net.NetworkCredential(proxyUser, proxyPass);
+                //webProxy.Credentials = new System.Net.NetworkCredential("zhaotianyu", "zty@123");
             }
             catch (Exception ex)
             {

@@ -37,6 +37,7 @@ namespace PoeDB
                 initial_header();
             }
             catch(Exception ex) {
+                updateStatusBox("PoeDb connection failed");
                 Console.Write(ex.Message);
             }
             //BackgroundWorker 
@@ -52,10 +53,9 @@ namespace PoeDB
         private void paralle() {
             string[] strs = new string[]{"1","2","3"};
             ParallelOptions options = new ParallelOptions();
-            options.MaxDegreeOfParallelism = 4;
+            options.MaxDegreeOfParallelism = 1;
             Parallel.ForEach(strs,options,(str) =>
             {
-
                 task(str);
             });
             updateStatusBox(res);
@@ -321,6 +321,7 @@ namespace PoeDB
 
         private void monBtn_Click(object sender, EventArgs e)
         {
+            this.watch = Stopwatch.StartNew();
             this.watch.Start();
             updateStatusBox("Loading 怪物 page...");
             var sub_pageDt = pgdata.getCertainPage("mon.php");
