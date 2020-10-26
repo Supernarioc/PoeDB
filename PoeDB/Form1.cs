@@ -243,6 +243,9 @@ namespace PoeDB
                     var Selected_lk = (boxSender.SelectedItem as dynamic).Link;
                     if (pre_listItem != Selected_tx)
                     {
+                        //clear input box
+                        this.monSearchBox.Text = "";
+                        //update page label
                         pre_listItem = Selected_tx;
                         tabText.Text = Selected_tx;
                         tabLink.Text = Selected_lk;
@@ -292,7 +295,7 @@ namespace PoeDB
         private void tabDoc_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             this.watch.Stop();
-            updateStatusBox("Page loaded "+ Math.Round((double)watch.ElapsedMilliseconds / 1000, 3) + "s");
+            updateStatusBox("Page loaded " + Math.Round((double)watch.ElapsedMilliseconds / 1000, 3) + "s" + "    " + System.DateTime.Now.ToString(DBsettings.timeFormat));
         }
 
         // Hides script errors without hiding other dialog boxes.
@@ -346,17 +349,37 @@ namespace PoeDB
         {
             //input eg: aspect of might => Aspect_of_Might
             //
-            var _name = this.monSearchBox.Text.Split(' ');
-            var monUrl = "";
-            if (_name.Count() > 1) {
-                for (var i = 0; i < _name.Count(); ++i)
+            var inputText = this.monSearchBox.Text.ToString(); ;
+            if (inputText != "" || inputText.Contains('_'))
+            {
+                var _name = inputText.Split(' ');
+                var monUrl = "";
+                if (_name.Count() > 1)
                 {
-                    monUrl += char.ToUpper(_name[i][0]) + _name[i].Substring(1);
-                    if (i != _name.Count()-1)
-                        monUrl += "_";
+                    for (var i = 0; i < _name.Count(); ++i)
+                    {
+                        monUrl += char.ToUpper(_name[i][0]) + _name[i].Substring(1);
+                        if (i != _name.Count() - 1)
+                            monUrl += "_";
+                    }
                 }
+                tabDoc.Navigate("about:blank");
+                HtmlDocument doc = tabDoc.Document;
+                doc.Write(String.Empty);
+                this.watch = Stopwatch.StartNew();
+                this.watch.Start();
+                tabDoc.DocumentText = DBsettings.styleSheet + pgdata.getCertainPage("/" + (monUrl == "" ? inputText : monUrl)) + DBsettings.htmlEnd;
             }
-            var sub_pageDt = pgdata.getCertainPage(monUrl);
+            else {
+                updateStatusBox("Monster name invalid");
+            }
+        }
+
+        private void monSearchBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter) {
+                monSearchBtn.PerformClick();
+            }
         }
     }
 }

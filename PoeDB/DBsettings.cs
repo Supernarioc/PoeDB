@@ -26,5 +26,6 @@ namespace PoeDB
         public static readonly string[] monTableHead = new string[] { "名字","幽魂","词缀", "标签", "伤害", "生命",
                                                                     "Ailment Threshold", "攻击暴击率", "类型", "攻击距离",
                                                                     "攻击间隔", "伤害分布", "护具", "命中" };
+        public static readonly string timeFormat = "HH-mm-ss";
     }
 }

@@ -78,15 +78,17 @@ namespace PoeDB
         /// 获取其他页面
         /// </summary>
         public string getCertainPage(string subUrl) {
-            Uri uri = new Uri(DBsettings.DBURL + subUrl);
-            string resp = null;
+            var _subUrl = subUrl.Split('/');
+            Uri uri = new Uri(DBsettings.DBURL + (_subUrl.Count() > 1 ? _subUrl[1] : subUrl));
+            string resp = "";
             HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
             var simpleCrawlResult = WebRequest.RequestAction(new RequestOptions() { Uri = uri, Method = "Get" });
             //加载页面
             doc.LoadHtml(simpleCrawlResult);
             //tab-content
             HtmlAgilityPack.HtmlNode tab_content = doc.DocumentNode.SelectSingleNode("//div[@class = 'tab-content']");
-
+            if (subUrl.Contains('/'))
+                tab_content = tab_content.SelectSingleNode(".//div[1]");
             //areaTab_Main = tab_content.SelectSingleNode("div[@class = 'table-responsive']");
             //blue-area tab
             //HtmlAgilityPack.HtmlNode headlineN = doc.DocumentNode.SelectSingleNode("//div[@id = 'navbarColor02']");
@@ -96,14 +98,16 @@ namespace PoeDB
             //areaTab_G = headlineN.SelectNodes(".//a")?.ToArray();
 
             //monster_list
+            HtmlAgilityPack.HtmlNode inputNode = doc.DocumentNode.SelectSingleNode("//div[@class = 'query input-group']");
+            resp = inputNode?.OuterHtml; 
             if (subUrl == "mon.php")
                 //get monster detail list
-                resp = monPage();
+                resp += monPage();
             else if(tab_content == null)
                 return "<h1>Content not found</h1>"; 
             else
                 //return main page tab-content html
-                resp = tab_content.InnerHtml;
+                resp += tab_content.InnerHtml;
             
             return resp;
         }
@@ -119,7 +123,7 @@ namespace PoeDB
             //create empty table
             monTable = null;
             monTable = _doc.CreateElement("table");
-            monTable.AddClass("table table-striped table-bordered");
+            //monTable.AddClass("table table-striped table-bordered");
             monTable.AppendChild(_doc.CreateElement("thead"));
             monTable.AppendChild(_doc.CreateElement("tbody"));
             var theadNode = monTable.SelectSingleNode(".//thead");
@@ -132,6 +136,8 @@ namespace PoeDB
             var monSpan = doc.DocumentNode.SelectSingleNode("//h5[@class='card-header']").InnerHtml;
             resp = monSpan;
             areaTab_Main = doc.DocumentNode.SelectSingleNode("//div[@id = 'Monstermon_list15']");
+            string tableClass = areaTab_Main.SelectSingleNode(".//table").GetAttributeValue("class", "");
+            monTable.AddClass(tableClass);
             HtmlAgilityPack.HtmlNode[] mons = areaTab_Main.SelectNodes(".//tbody/tr[position() < 50 ]").ToArray();
 
             //var _thead = monTable.SelectSingleNode(".//thead");
@@ -232,8 +238,8 @@ namespace PoeDB
                     return _tr.OuterHtml;
                 }
             }
-            return "";
             Console.Out.WriteLine("Thread "+index);
+            return "";
         }
     }
 }

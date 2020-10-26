@@ -181,8 +181,7 @@ namespace PoeDB
             this.monSearchBox.Name = "monSearchBox";
             this.monSearchBox.Size = new System.Drawing.Size(336, 26);
             this.monSearchBox.TabIndex = 0;
-            this.monSearchBox.Visible = false;
-            this.monSearchBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.monSearch_Click);
+            this.monSearchBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.monSearchBox_KeyDown);
             // 
             // monSearchBtn
             // 
@@ -195,7 +194,6 @@ namespace PoeDB
             this.monSearchBtn.Size = new System.Drawing.Size(28, 28);
             this.monSearchBtn.TabIndex = 1;
             this.monSearchBtn.UseVisualStyleBackColor = true;
-            this.monSearchBtn.Visible = false;
             this.monSearchBtn.Click += new System.EventHandler(this.monSearch_Click);
             // 
             // tabLink

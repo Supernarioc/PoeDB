@@ -91,7 +91,7 @@ namespace PoeDB
             {
                 // 代理链接地址加端口
                 string proxyHost = "192.168.1.1";
-                string proxyPort = "9030";
+                string proxyPort = "8080";
 
                 // 代理身份验证的帐号跟密码
                 //string proxyUser = "xxx";
