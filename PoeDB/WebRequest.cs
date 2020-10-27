@@ -14,7 +14,7 @@ namespace PoeDB
         public static string RequestAction(RequestOptions options)
         {
             string result = string.Empty;
-            //IWebProxy proxy = GetProxy();
+            IWebProxy proxy = GetProxy();
             var request = (HttpWebRequest)System.Net.WebRequest.Create(options.Uri);
             request.Accept = options.Accept;
             //在使用curl做POST的时候, 当要POST的数据大于1024字节的时候, curl并不会直接就发起POST请求, 而是会分为俩步,
@@ -32,7 +32,7 @@ namespace PoeDB
             request.KeepAlive = options.KeepAlive;//启用长连接
             if (!string.IsNullOrEmpty(options.Referer)) request.Referer = options.Referer;//返回上一级历史链接
             request.Method = options.Method;//定义请求方式为GET
-            //if (proxy != null) request.Proxy = proxy;//设置代理服务器IP，伪装请求地址
+            if (proxy != null) request.Proxy = proxy;//设置代理服务器IP，伪装请求地址
             if (!string.IsNullOrEmpty(options.RequestCookies)) request.Headers[HttpRequestHeader.Cookie] = options.RequestCookies;
             request.ServicePoint.ConnectionLimit = options.ConnectionLimit;//定义最大连接数
             if (options.WebHeader != null && options.WebHeader.Count > 0) request.Headers.Add(options.WebHeader);//添加头部信息

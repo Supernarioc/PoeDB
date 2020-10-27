@@ -39,6 +39,7 @@ namespace PoeDB
             this.homeBtn = new System.Windows.Forms.Button();
             this.settingBtn = new System.Windows.Forms.Button();
             this.homePanel = new System.Windows.Forms.Panel();
+            this.loadPic = new System.Windows.Forms.PictureBox();
             this.tabDoc = new System.Windows.Forms.WebBrowser();
             this.headPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.monSearchBox = new System.Windows.Forms.TextBox();
@@ -64,13 +65,17 @@ namespace PoeDB
             this.settingPanel = new System.Windows.Forms.Panel();
             this.dbUrlText = new System.Windows.Forms.TextBox();
             this.dbUrlLabel = new System.Windows.Forms.Label();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.loadWork = new System.ComponentModel.BackgroundWorker();
+            this.loadPageWork = new System.ComponentModel.BackgroundWorker();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.homePanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.loadPic)).BeginInit();
             this.headPanel.SuspendLayout();
             this.panel3.SuspendLayout();
             this.mainHeadPanel.SuspendLayout();
             this.settingPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // poeLable
@@ -148,6 +153,7 @@ namespace PoeDB
             // homePanel
             // 
             this.homePanel.BackColor = System.Drawing.Color.Transparent;
+            this.homePanel.Controls.Add(this.loadPic);
             this.homePanel.Controls.Add(this.tabDoc);
             this.homePanel.Controls.Add(this.headPanel);
             this.homePanel.Location = new System.Drawing.Point(102, 54);
@@ -155,9 +161,21 @@ namespace PoeDB
             this.homePanel.Size = new System.Drawing.Size(955, 411);
             this.homePanel.TabIndex = 6;
             // 
+            // loadPic
+            // 
+            this.loadPic.BackColor = System.Drawing.Color.Black;
+            this.loadPic.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.loadPic.Image = global::PoeDB.Properties.Resources.loading;
+            this.loadPic.Location = new System.Drawing.Point(345, 201);
+            this.loadPic.Name = "loadPic";
+            this.loadPic.Size = new System.Drawing.Size(160, 24);
+            this.loadPic.TabIndex = 6;
+            this.loadPic.TabStop = false;
+            this.loadPic.Visible = false;
+            // 
             // tabDoc
             // 
-            this.tabDoc.Location = new System.Drawing.Point(0, 39);
+            this.tabDoc.Location = new System.Drawing.Point(3, 35);
             this.tabDoc.MinimumSize = new System.Drawing.Size(20, 20);
             this.tabDoc.Name = "tabDoc";
             this.tabDoc.Size = new System.Drawing.Size(955, 372);
@@ -171,7 +189,7 @@ namespace PoeDB
             this.headPanel.Controls.Add(this.monSearchBtn);
             this.headPanel.Location = new System.Drawing.Point(0, 0);
             this.headPanel.Name = "headPanel";
-            this.headPanel.Size = new System.Drawing.Size(952, 34);
+            this.headPanel.Size = new System.Drawing.Size(952, 56);
             this.headPanel.TabIndex = 0;
             // 
             // monSearchBox
@@ -445,11 +463,25 @@ namespace PoeDB
             this.dbUrlLabel.TabIndex = 0;
             this.dbUrlLabel.Text = "主页Url";
             // 
-            // backgroundWorker1
+            // loadWork
             // 
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            this.loadWork.DoWork += new System.ComponentModel.DoWorkEventHandler(this.loadWork_DoWork_1);
+            this.loadWork.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.loadWork_ProgressChanged_1);
+            this.loadWork.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.loadWork_RunWorkerCompleted_1);
+            // 
+            // loadPageWork
+            // 
+            this.loadPageWork.DoWork += new System.ComponentModel.DoWorkEventHandler(this.loadPageWork_DoWork);
+            this.loadPageWork.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.loadPageWork_RunWorkerCompleted);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.pictureBox1.Location = new System.Drawing.Point(285, 108);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(92, 92);
+            this.pictureBox1.TabIndex = 3;
+            this.pictureBox1.TabStop = false;
             // 
             // PoeDbForm
             // 
@@ -482,6 +514,7 @@ namespace PoeDB
             this.panel1.ResumeLayout(false);
             this.homePanel.ResumeLayout(false);
             this.homePanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.loadPic)).EndInit();
             this.headPanel.ResumeLayout(false);
             this.headPanel.PerformLayout();
             this.panel3.ResumeLayout(false);
@@ -489,6 +522,7 @@ namespace PoeDB
             this.mainHeadPanel.ResumeLayout(false);
             this.settingPanel.ResumeLayout(false);
             this.settingPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -525,9 +559,12 @@ namespace PoeDB
         private TextBox dbUrlText;
         private Label dbUrlLabel;
         private Button monBtn;
-        private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private TextBox monSearchBox;
         private Button monSearchBtn;
+        private System.ComponentModel.BackgroundWorker loadWork;
+        private System.ComponentModel.BackgroundWorker loadPageWork;
+        private PictureBox pictureBox1;
+        private PictureBox loadPic;
     }
 }
 

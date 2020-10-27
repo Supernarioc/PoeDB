@@ -30,6 +30,7 @@ namespace PoeDB
         public static void msgMethod(string str)
         {
             MessageBox.Show(str);
+            
         }
     }
 }

@@ -154,8 +154,8 @@ namespace PoeDB
             else {
                 AsyncMsgBox.showMsg("Version is latest");
             }
-            string wait = await PageContent.update();
-            statusBox.Items.Add(wait);
+            //string wait = await PageContent.update();
+            //statusBox.Items.Add(wait);
             //todo: add latest version from fetched data
             updateStatusBox("PoeDB version check complete");
 
@@ -273,7 +273,7 @@ namespace PoeDB
                 }
         }
 
-        private void updateStatusBox(string status) {
+        public void updateStatusBox(string status) {
             statusBox.Items.Add(status);
             if(statusBox.Items.Count > 6)
                 statusBox.TopIndex = statusBox.Items.Count - 1;
@@ -321,29 +321,19 @@ namespace PoeDB
 
         private void monBtn_Click(object sender, EventArgs e)
         {
-            this.watch = Stopwatch.StartNew();
-            this.watch.Start();
-            updateStatusBox("Loading 怪物 page...");
-            var sub_pageDt = pgdata.getCertainPage("mon.php");
-            //initial webbrowser
-            tabDoc.Navigate("about:blank");
-            HtmlDocument doc = tabDoc.Document;
-            doc.Write(String.Empty);
-            tabDoc.DocumentText = DBsettings.styleSheet + sub_pageDt + DBsettings.htmlEnd;
+            loadingAsync();
         }
 
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-        }
-
-        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-
-        }
-
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-
+        private void loadingAsync() {
+            if (!loadWork.IsBusy && !loadPageWork.IsBusy)
+            {
+                loadWork.RunWorkerAsync();
+                loadPageWork.RunWorkerAsync();
+                Console.Out.WriteLine("monBtn");
+            }else{
+                AsyncMsgBox.msgDelegateInstance = new AsyncMsgBox.msgDelegate(AsyncMsgBox.msgMethod);
+                AsyncMsgBox.showMsg("loading is busy");
+            }
         }
 
         private void monSearch_Click(object sender, EventArgs e)
@@ -382,5 +372,64 @@ namespace PoeDB
                 monSearchBtn.PerformClick();
             }
         }
+
+        private void loadWork_DoWork_1(object sender, DoWorkEventArgs e)
+        {
+            loadingStatus();
+        }
+
+        private async void loadingStatus() {
+            this.BeginInvoke(new Action(() =>
+            {
+                this.loadPic.Visible = true;
+                this.tabDoc.Visible = false;
+            }));
+        }
+
+        private void loadWork_ProgressChanged_1(object sender, ProgressChangedEventArgs e)
+        {
+
+        }
+
+        private void loadWork_RunWorkerCompleted_1(object sender, RunWorkerCompletedEventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// load fetched page
+        /// </summary>
+        private async void loadWebPage() {
+            this.watch = Stopwatch.StartNew();
+            this.watch.Start();
+            //async load page
+            this.BeginInvoke(new Action(()=> {
+                updateStatusBox("Loading 怪物 page...");
+                var sub_pageDt = pgdata.getCertainPage("mon.php");
+                //initial webbrowser
+                tabDoc.Navigate("about:blank");
+                HtmlDocument doc = tabDoc.Document;
+                doc.Write(String.Empty);
+                tabDoc.DocumentText = DBsettings.styleSheet + sub_pageDt + DBsettings.htmlEnd;
+            }));
+            
+            //await Task.Delay(2000);
+
+        }
+
+        private void loadPageWork_DoWork(object sender, DoWorkEventArgs e)
+        {
+            loadWebPage();
+        }
+
+        private void loadPageWork_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            //disable loading
+            this.BeginInvoke(new Action(() =>
+            {
+                this.loadPic.Visible = false;
+                this.tabDoc.Visible = true;
+            }));
+        }
+
     }
 }
